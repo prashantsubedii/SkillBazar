@@ -1,0 +1,363 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ gig.title }} - SkillBazar{% endblock %}
+
+{% block extra_css %}
+<style>
+    .gig-header {
+        border-bottom: 1px solid #eee;
+        padding-bottom: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .gig-image {
+        height: 400px;
+        object-fit: cover;
+        border-radius: 12px;
+    }
+    
+    .freelancer-card {
+        transition: var(--transition);
+    }
+    
+    .freelancer-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    
+    .stats-card {
+        text-align: center;
+        padding: 1.5rem;
+        border-radius: 12px;
+        background: white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .stats-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+    
+    .stats-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    
+    .order-card {
+        position: sticky;
+        top: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .btn-order {
+        padding: 12px;
+        font-weight: 600;
+    }
+    
+    .review-card {
+        border-radius: 12px;
+        background: white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .reviewer-info {
+        display: flex;
+        align-items: center;
+    }
+    
+    .related-gig {
+        transition: var(--transition);
+    }
+    
+    .related-gig:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    
+    .description-content {
+        line-height: 1.8;
+    }
+    
+    .description-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin: 1rem 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5 position-relative">
+    <a href="#" class="back-btn" onclick="window.history.back(); return false;" style="position:absolute;top:20px;left:-30px;z-index:10;width:40px;height:40px;background:#1877f2;border:none;border-radius:50%;color:white;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(24,119,242,0.3);transition:all 0.2s;text-decoration:none;"><i class="fas fa-arrow-left" style="font-size:1rem;"></i></a>
+    <div class="row">
+        <!-- Gig Details -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                {% if gig.image %}
+                <img src="{{ gig.image.url }}" class="card-img-top gig-image" alt="{{ gig.title }}">
+                {% else %}
+                <img src="https://images.pexels.com/photos/3183153/pexels-photo-3183153.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" 
+                     class="card-img-top gig-image" alt="{{ gig.title }}">
+                {% endif %}
+                
+                <div class="card-body">
+                    <div class="gig-header">
+                        <h1 class="card-title mb-3">{{ gig.title }}</h1>
+                        
+                        <!-- Freelancer Info -->
+                        <div class="d-flex align-items-center mb-4">
+                            {% if gig.freelancer.profile_picture %}
+                            <img src="{{ gig.freelancer.profile_picture.url }}" 
+                                 class="profile-pic me-3" alt="{{ gig.freelancer.username }}">
+                            {% else %}
+                            <img src="https://ui-avatars.com/api/?name={{ gig.freelancer.get_full_name }}&background=random" 
+                                 class="profile-pic me-3" alt="{{ gig.freelancer.username }}">
+                            {% endif %}
+                            <div>
+                                <h5 class="mb-1 fw-bold">{{ gig.freelancer.get_full_name }}</h5>
+                                <div class="rating mb-1">
+                                    {% for i in "12345" %}
+                                    {% if forloop.counter <= gig.freelancer.rating %}
+                                    <i class="fas fa-star text-warning"></i>
+                                    {% else %}
+                                    <i class="far fa-star text-muted"></i>
+                                    {% endif %}
+                                    {% endfor %}
+                                    <small class="text-muted ms-2">({{ gig.freelancer.total_reviews }} reviews)</small>
+                                </div>
+                                <small class="text-muted">Member since {{ gig.freelancer.date_joined|date:"M Y" }}</small>
+                            </div>
+                        </div>
+
+                        <!-- Gig Stats -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-3">
+                                <div class="stats-card">
+                                    <div class="stats-value">रु {{ gig.price }}</div>
+                                    <div class="stats-label">Starting Price</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stats-card">
+                                    <div class="stats-value">{{ gig.delivery_time }}</div>
+                                    <div class="stats-label">Days Delivery</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stats-card">
+                                    <div class="stats-value">{{ gig.rating|floatformat:1 }}</div>
+                                    <div class="stats-label">Rating</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stats-card">
+                                    <div class="stats-value">{{ gig.views }}</div>
+                                    <div class="stats-label">Views</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-5">
+                        <h4 class="mb-3">Description</h4>
+                        <div class="description-content">
+                            {{ gig.description|linebreaks }}
+                        </div>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="mb-4">
+                        <span class="badge bg-primary fs-6">{{ gig.category.name }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0"><i class="fas fa-star me-2 text-warning"></i>Reviews ({{ gig.total_reviews }})</h4>
+                </div>
+                <div class="card-body">
+                    {% if gig.reviews.all %}
+                    {% for review in gig.reviews.all %}
+                    <div class="review-card">
+                        <div class="review-header">
+                            <div class="reviewer-info">
+                                {% if review.reviewer.profile_picture %}
+                                <img src="{{ review.reviewer.profile_picture.url }}" 
+                                     class="profile-pic me-3" alt="{{ review.reviewer.username }}">
+                                {% else %}
+                                <img src="https://ui-avatars.com/api/?name={{ review.reviewer.get_full_name }}&background=random" 
+                                     class="profile-pic me-3" alt="{{ review.reviewer.username }}">
+                                {% endif %}
+                                <div>
+                                    <h6 class="mb-1 fw-bold">{{ review.reviewer.get_full_name }}</h6>
+                                    <div class="rating">
+                                        {% for i in "12345" %}
+                                        {% if forloop.counter <= review.rating %}
+                                        <i class="fas fa-star text-warning"></i>
+                                        {% else %}
+                                        <i class="far fa-star text-muted"></i>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
+                        </div>
+                        <p class="mb-0">{{ review.comment }}</p>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-star fa-3x text-muted mb-3"></i>
+                        <h5>No reviews yet</h5>
+                        <p class="text-muted">Be the first to review this service</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Sidebar -->
+        <div class="col-lg-4">
+            <div class="card order-card mb-4">
+                <div class="card-body">
+                    <h4 class="text-primary mb-3">रु {{ gig.price }}</h4>
+                    
+                    {% if user.is_authenticated and user != gig.freelancer %}
+                    <a href="{% url 'orders:create_order_and_pay' gig.id %}" class="btn btn-primary btn-order w-100 mb-3">
+                        <i class="fas fa-shopping-cart me-2"></i>Order Now
+                    </a>
+                    {% elif user == gig.freelancer %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>This is your gig listing
+                    </div>
+                    {% else %}
+                    <a href="{% url 'account_login' %}?next={% url 'orders:create_order_and_pay' gig.id %}" class="btn btn-primary btn-order w-100 mb-3">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login to Order
+                    </a>
+                    {% endif %}
+
+                    <!-- Contact Freelancer -->
+                    {% if user.is_authenticated and user != gig.freelancer %}
+                    <a href="{% url 'messaging:start_conversation' gig.freelancer.id %}" class="btn btn-outline-primary w-100 mb-3">
+                        <i class="fas fa-envelope me-2"></i>Message Freelancer
+                    </a>
+                    {% endif %}
+
+                    <!-- Gig Info -->
+                    <div class="border-top pt-3">
+                        <h6>Gig Details</h6>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-clock me-2 text-muted"></i>
+                                Delivery: {{ gig.delivery_time }} days
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-star me-2 text-muted"></i>
+                                Rating: {{ gig.rating|floatformat:1 }}/5 ({{ gig.total_reviews }} reviews)
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-eye me-2 text-muted"></i>
+                                Views: {{ gig.views }}
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-calendar me-2 text-muted"></i>
+                                Created: {{ gig.created_at|date:"M d, Y" }}
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Freelancer Info -->
+                    <div class="border-top pt-3">
+                        <h6>About the Freelancer</h6>
+                        <div class="d-flex align-items-center mb-3">
+                            {% if gig.freelancer.profile_picture %}
+                            <img src="{{ gig.freelancer.profile_picture.url }}" 
+                                 class="profile-pic me-3" alt="{{ gig.freelancer.username }}">
+                            {% else %}
+                            <img src="https://ui-avatars.com/api/?name={{ gig.freelancer.get_full_name }}&background=random" 
+                                 class="profile-pic me-3" alt="{{ gig.freelancer.username }}">
+                            {% endif %}
+                            <div>
+                                <h6 class="mb-1 fw-bold">{{ gig.freelancer.get_full_name }}</h6>
+                                <small class="text-muted">@{{ gig.freelancer.username }}</small>
+                            </div>
+                        </div>
+                        {% if gig.freelancer.bio %}
+                        <p class="small">{{ gig.freelancer.bio|truncatewords:20 }}</p>
+                        {% endif %}
+                        <a href="{% url 'users:profile' username=gig.freelancer.username %}" class="btn btn-outline-secondary btn-sm w-100">
+                            View Full Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Gigs -->
+    {% if related_gigs %}
+    <div class="mt-5">
+        <h3 class="mb-4">Related Services</h3>
+        <div class="row g-4">
+            {% for related_gig in related_gigs %}
+            <div class="col-md-6 col-lg-3">
+                <div class="card related-gig h-100">
+                    {% if related_gig.image %}
+                    <img src="{{ related_gig.image.url }}" class="card-img-top" alt="{{ related_gig.title }}">
+                    {% else %}
+                    <img src="https://images.pexels.com/photos/3183153/pexels-photo-3183153.jpeg?auto=compress&cs=tinysrgb&w=600" 
+                         class="card-img-top" alt="{{ related_gig.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h6 class="card-title">{{ related_gig.title }}</h6>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-primary fw-bold">रु {{ related_gig.price }}</span>
+                            <div class="rating">
+                                {% for i in "12345" %}
+                                {% if forloop.counter <= related_gig.rating %}
+                                <i class="fas fa-star text-warning"></i>
+                                {% else %}
+                                <i class="far fa-star text-muted"></i>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <a href="{{ related_gig.get_absolute_url }}" class="btn btn-primary btn-sm w-100">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Smooth scroll for page anchors
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+</script>
+{% endblock %}

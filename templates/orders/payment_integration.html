@@ -1,0 +1,432 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment - SkillBazar{% endblock %}
+
+{% block extra_css %}
+<style>
+    .payment-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    
+    .payment-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        max-width: 500px;
+        width: 100%;
+        animation: slideUp 0.6s ease-out;
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .payment-header {
+        background: linear-gradient(135deg, #1877f2 0%, #42a5f5 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+    }
+    
+    .payment-header h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+    
+    .payment-body {
+        padding: 40px 30px;
+    }
+    
+    .order-summary {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .order-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    
+    .order-item:last-child {
+        margin-bottom: 0;
+        border-top: 1px solid #dee2e6;
+        padding-top: 10px;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    .payment-methods {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+    
+    .payment-method {
+        border: 2px solid #e9ecef;
+        border-radius: 15px;
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: white;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .payment-method:hover {
+        border-color: #1877f2;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .payment-method.selected {
+        border-color: #1877f2;
+        background: #f8f9ff;
+    }
+    
+    .payment-method::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #1877f2, #42a5f5);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+    
+    .payment-method.selected::before {
+        transform: scaleX(1);
+    }
+    
+    .payment-method-content {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .payment-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+    
+    .khalti-icon {
+        background: linear-gradient(135deg, #5C2D91, #8B5CF6);
+    }
+    
+    .esewa-icon {
+        background: linear-gradient(135deg, #61D836, #4CAF50);
+    }
+    
+    .payment-info h5 {
+        margin: 0;
+        font-weight: 600;
+    }
+    
+    .payment-info p {
+        margin: 5px 0 0 0;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .btn-pay {
+        background: linear-gradient(135deg, #1877f2 0%, #42a5f5 100%);
+        border: none;
+        border-radius: 15px;
+        padding: 15px 30px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+        color: white;
+    }
+    
+    .btn-pay:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(24, 119, 242, 0.3);
+    }
+    
+    .btn-pay:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .loading-spinner {
+        display: none;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #1877f2;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 15px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .success-animation {
+        display: none;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .success-icon {
+        width: 60px;
+        height: 60px;
+        background: #28a745;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        color: white;
+        font-size: 1.5rem;
+        animation: bounce 0.6s ease-out;
+    }
+    
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {
+            transform: translateY(0);
+        }
+        40% {
+            transform: translateY(-10px);
+        }
+        60% {
+            transform: translateY(-5px);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div class="payment-container">
+    <div class="payment-card">
+        <div class="payment-header">
+            <h1><i class="fas fa-credit-card me-2"></i>Complete Payment</h1>
+            <p>Choose your preferred payment method</p>
+        </div>
+        
+        <div class="payment-body">
+            <div class="order-summary">
+                <h5 class="mb-3"><i class="fas fa-shopping-cart me-2"></i>Order Summary</h5>
+                <div class="order-item">
+                    <span>Service:</span>
+                    <span>{{ order.gig.title }}</span>
+                </div>
+                <div class="order-item">
+                    <span>Freelancer:</span>
+                    <span>{{ order.freelancer.get_full_name }}</span>
+                </div>
+                <div class="order-item">
+                    <span>Delivery:</span>
+                    <span>{{ order.gig.delivery_time }} days</span>
+                </div>
+                <div class="order-item">
+                    <span>Service Fee:</span>
+                    <span>रु {{ order.amount }}</span>
+                </div>
+                <div class="order-item">
+                    <span>Platform Fee (5%):</span>
+                    <span>रु {{ platform_fee }}</span>
+                </div>
+                <div class="order-item">
+                    <span>Total Amount:</span>
+                    <span>रु {{ total_amount }}</span>
+                </div>
+            </div>
+            
+            <div class="payment-methods">
+                <h5 class="mb-3"><i class="fas fa-wallet me-2"></i>Select Payment Method</h5>
+                
+                <div class="payment-method" onclick="selectPaymentMethod('khalti')">
+                    <div class="payment-method-content">
+                        <div class="payment-icon khalti-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <div class="payment-info">
+                            <h5>Khalti</h5>
+                            <p>Pay with Khalti Digital Wallet</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="payment-method" onclick="selectPaymentMethod('esewa')">
+                    <div class="payment-method-content">
+                        <div class="payment-icon esewa-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="payment-info">
+                            <h5>eSewa</h5>
+                            <p>Pay with eSewa Digital Wallet</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="button" class="btn btn-pay" id="payButton" onclick="processPayment()" disabled>
+                <i class="fas fa-credit-card me-2"></i>Pay रु {{ total_amount }}
+            </button>
+            
+            <!-- Hidden form for eSewa -->
+            <form id="esewaForm" method="POST" action="https://esewa.com.np/epay/main" style="display: none;">
+                <input type="hidden" name="amt" value="{{ total_amount }}">
+                <input type="hidden" name="pdc" value="0">
+                <input type="hidden" name="psc" value="0">
+                <input type="hidden" name="txAmt" value="0">
+                <input type="hidden" name="tAmt" value="{{ total_amount }}">
+                <input type="hidden" name="pid" value="order_{{ order.id }}">
+                <input type="hidden" name="scd" value="EPAYTEST">
+                <input type="hidden" name="su" value="{% url 'orders:payment_success' order.id %}">
+                <input type="hidden" name="fu" value="{% url 'orders:payment_failure' order.id %}">
+            </form>
+            
+            <div class="loading-spinner" id="loadingSpinner">
+                <div class="spinner"></div>
+                <p>Processing payment...</p>
+            </div>
+            
+            <div class="success-animation" id="successAnimation">
+                <div class="success-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h5>Payment Successful!</h5>
+                <p>Your order has been placed successfully.</p>
+                <a href="{% url 'orders:order_detail' order.pk %}" class="btn btn-primary">
+                    <i class="fas fa-eye me-2"></i>View Order
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let selectedPaymentMethod = null;
+
+function selectPaymentMethod(method) {
+    // Remove selected class from all methods
+    document.querySelectorAll('.payment-method').forEach(method => {
+        method.classList.remove('selected');
+    });
+    
+    // Add selected class to clicked method
+    event.target.closest('.payment-method').classList.add('selected');
+    
+    selectedPaymentMethod = method;
+    document.getElementById('payButton').disabled = false;
+}
+
+function processPayment() {
+    if (!selectedPaymentMethod) {
+        alert('Please select a payment method');
+        return;
+    }
+    
+    // Show loading spinner
+    document.getElementById('payButton').style.display = 'none';
+    document.getElementById('loadingSpinner').style.display = 'block';
+    
+    if (selectedPaymentMethod === 'khalti') {
+        // Process Khalti payment
+        fetch('{% url "orders:khalti_payment_initiate" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({
+                order_id: {{ order.id }},
+                amount: {{ total_amount }}
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.payment_url) {
+                // Redirect to Khalti payment page
+                window.location.href = data.payment_url;
+            } else {
+                throw new Error(data.error || 'Payment initiation failed');
+            }
+        })
+        .catch(error => {
+            console.error('Khalti payment error:', error);
+            alert('Payment initiation failed. Please try again.');
+            document.getElementById('loadingSpinner').style.display = 'none';
+            document.getElementById('payButton').style.display = 'block';
+        });
+        
+    } else if (selectedPaymentMethod === 'esewa') {
+        // Process eSewa payment
+        fetch('{% url "orders:esewa_payment_initiate" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({
+                order_id: {{ order.id }},
+                amount: {{ total_amount }}
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.payment_url) {
+                // Submit eSewa form
+                document.getElementById('esewaForm').submit();
+            } else {
+                throw new Error(data.error || 'Payment initiation failed');
+            }
+        })
+        .catch(error => {
+            console.error('eSewa payment error:', error);
+            alert('Payment initiation failed. Please try again.');
+            document.getElementById('loadingSpinner').style.display = 'none';
+            document.getElementById('payButton').style.display = 'block';
+        });
+    }
+}
+
+// Auto-select first payment method
+document.addEventListener('DOMContentLoaded', function() {
+    const firstMethod = document.querySelector('.payment-method');
+    if (firstMethod) {
+        firstMethod.click();
+    }
+});
+</script>
+{% endblock %} 

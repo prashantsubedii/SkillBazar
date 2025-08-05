@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - SkillBazar{% endblock %}
+
+{% block content %}
+<div class="container py-5 position-relative">
+    <a href="#" class="back-btn" onclick="window.history.back(); return false;" style="position:absolute;top:20px;left:-30px;z-index:10;width:40px;height:40px;background:#1877f2;border:none;border-radius:50%;color:white;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(24,119,242,0.3);transition:all 0.2s;text-decoration:none;"><i class="fas fa-arrow-left" style="font-size:1rem;"></i></a>
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</h2>
+        </div>
+    </div>
+
+    {% if user_type == 'freelancer' or user_type == 'both' %}
+    <!-- Freelancer Dashboard -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h4 class="mb-3"><i class="fas fa-briefcase me-2"></i>Freelancer Overview</h4>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-briefcase fa-2x text-primary mb-2"></i>
+                    <h5 class="card-title">{{ total_gigs }}</h5>
+                    <p class="card-text text-muted">Total Gigs</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                    <h5 class="card-title">{{ active_gigs }}</h5>
+                    <p class="card-text text-muted">Active Gigs</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-shopping-cart fa-2x text-info mb-2"></i>
+                    <h5 class="card-title">{{ total_orders }}</h5>
+                    <p class="card-text text-muted">Total Orders</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-money-bill-wave fa-2x text-warning mb-2"></i>
+                    <h5 class="card-title">रु {{ total_earnings }}</h5>
+                    <p class="card-text text-muted">Total Earnings</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Recent Orders</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_orders %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Gig</th>
+                                    <th>Buyer</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders %}
+                                <tr>
+                                    <td>#{{ order.id }}</td>
+                                    <td>{{ order.gig.title }}</td>
+                                    <td>{{ order.buyer.username }}</td>
+                                    <td>रु {{ order.amount }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if order.status == 'completed' %}success{% elif order.status == 'pending' %}warning{% else %}info{% endif %}">
+                                            {{ order.status|title }}
+                                        </span>
+                                    </td>
+                                    <td>{{ order.created_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        <a href="{% url 'orders:order_detail' order.pk %}" class="btn btn-sm btn-primary">
+                                            View
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center py-3">No orders received yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if user_type == 'buyer' or user_type == 'both' %}
+    <!-- Buyer Dashboard -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h4 class="mb-3"><i class="fas fa-shopping-cart me-2"></i>Buyer Overview</h4>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="col-md-4 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-shopping-bag fa-2x text-primary mb-2"></i>
+                    <h5 class="card-title">{{ total_orders_bought }}</h5>
+                    <p class="card-text text-muted">Orders Placed</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                    <h5 class="card-title">{{ pending_orders_bought }}</h5>
+                    <p class="card-text text-muted">Pending Orders</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                    <h5 class="card-title">{{ completed_orders_bought }}</h5>
+                    <p class="card-text text-muted">Completed Orders</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>My Recent Orders</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_orders_bought %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Gig</th>
+                                    <th>Freelancer</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders_bought %}
+                                <tr>
+                                    <td>#{{ order.id }}</td>
+                                    <td>{{ order.gig.title }}</td>
+                                    <td>{{ order.freelancer.username }}</td>
+                                    <td>रु {{ order.amount }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if order.status == 'completed' %}success{% elif order.status == 'pending' %}warning{% else %}info{% endif %}">
+                                            {{ order.status|title }}
+                                        </span>
+                                    </td>
+                                    <td>{{ order.created_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        <a href="{% url 'orders:order_detail' order.pk %}" class="btn btn-sm btn-primary">
+                                            View
+                                        </a>
+                                        {% if order.status == 'pending' %}
+                                        <form method="post" action="{% url 'orders:delete_order' order.pk %}" style="display:inline;" class="delete-order-form">
+                                            {% csrf_token %}
+                                            <button type="button" class="btn btn-sm btn-danger delete-order-btn" title="Cancel/Delete Order">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center py-3">No orders placed yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'gigs:create_gig' %}" class="btn btn-primary w-100">
+                                <i class="fas fa-plus me-2"></i>Create Gig
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'gigs:my_gigs' %}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-briefcase me-2"></i>My Gigs
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'orders:order_list' %}" class="btn btn-outline-info w-100">
+                                <i class="fas fa-shopping-cart me-2"></i>My Orders
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'messaging:conversation_list' %}" class="btn btn-outline-success w-100">
+                                <i class="fas fa-envelope me-2"></i>Messages
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteOrderModal" tabindex="-1" aria-labelledby="deleteOrderModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteOrderModalLabel">Confirm Order Cancellation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to cancel this order? This action cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Keep Order</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteOrderBtn">Yes, Cancel Order</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let formToDelete = null;
+document.querySelectorAll('.delete-order-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        formToDelete = this.closest('form');
+        var modal = new bootstrap.Modal(document.getElementById('deleteOrderModal'));
+        modal.show();
+    });
+});
+document.getElementById('confirmDeleteOrderBtn').onclick = function() {
+    if (formToDelete) {
+        formToDelete.submit();
+    }
+};
+</script>
+{% endblock %} 

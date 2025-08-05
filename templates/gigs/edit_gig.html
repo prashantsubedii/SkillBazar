@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Edit Gig - SkillBazar{% endblock %}
+
+{% block extra_css %}
+<style>
+    .edit-gig-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem 0;
+    }
+    
+    .edit-gig-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        max-width: 800px;
+        margin: 0 auto;
+        animation: slideUp 0.6s ease-out;
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .edit-gig-header {
+        background: var(--gradient);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .edit-gig-header h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+    
+    .edit-gig-body {
+        padding: 2rem;
+    }
+    
+    .form-floating {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-floating input,
+    .form-floating textarea,
+    .form-floating select {
+        border-radius: 10px;
+        border: 1px solid #e0e0e0;
+        padding: 1rem;
+        transition: var(--transition);
+    }
+    
+    .form-floating input:focus,
+    .form-floating textarea:focus,
+    .form-floating select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+    }
+    
+    .btn-edit-gig {
+        background: var(--gradient);
+        border: none;
+        border-radius: 10px;
+        padding: 1rem 2rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: var(--transition);
+        color: white;
+        width: 100%;
+    }
+    
+    .btn-edit-gig:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3);
+        color: white;
+    }
+    
+    .btn-cancel {
+        background: #6c757d;
+        border: none;
+        border-radius: 10px;
+        padding: 1rem 2rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: var(--transition);
+        color: white;
+        text-decoration: none;
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+        margin-top: 1rem;
+    }
+    
+    .btn-cancel:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(108, 117, 125, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .current-image {
+        max-width: 200px;
+        border-radius: 10px;
+        margin: 1rem 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="edit-gig-container">
+    <div class="edit-gig-card">
+        <div class="edit-gig-header">
+            <h1><i class="fas fa-edit me-2"></i>Edit Gig</h1>
+            <p>Update your gig information</p>
+        </div>
+        
+        <div class="edit-gig-body">
+            {% if form.errors %}
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Please correct the errors below.
+            </div>
+            {% endif %}
+            
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="id_title" name="title" value="{{ gig.title }}" placeholder="Gig Title" required>
+                            <label for="id_title">Gig Title</label>
+                            {% if form.title.errors %}
+                            <div class="text-danger small mt-1">{{ form.title.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <input type="number" class="form-control" id="id_price" name="price" value="{{ gig.price }}" placeholder="Price" required>
+                            <label for="id_price">Price (NPR)</label>
+                            {% if form.price.errors %}
+                            <div class="text-danger small mt-1">{{ form.price.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-floating">
+                    <select class="form-control" id="id_category" name="category" required>
+                        <option value="">Select Category</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}" {% if gig.category.id == category.id %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <label for="id_category">Category</label>
+                    {% if form.category.errors %}
+                    <div class="text-danger small mt-1">{{ form.category.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-floating">
+                    <textarea class="form-control" id="id_description" name="description" placeholder="Description" style="height: 120px" required>{{ gig.description }}</textarea>
+                    <label for="id_description">Description</label>
+                    {% if form.description.errors %}
+                    <div class="text-danger small mt-1">{{ form.description.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-floating">
+                    <input type="text" class="form-control" id="id_delivery_time" name="delivery_time" value="{{ gig.delivery_time }}" placeholder="Delivery Time" required>
+                    <label for="id_delivery_time">Delivery Time (e.g., 3 days)</label>
+                    {% if form.delivery_time.errors %}
+                    <div class="text-danger small mt-1">{{ form.delivery_time.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-floating">
+                    <input type="text" class="form-control" id="id_revisions" name="revisions" value="{{ gig.revisions }}" placeholder="Number of Revisions" required>
+                    <label for="id_revisions">Number of Revisions</label>
+                    {% if form.revisions.errors %}
+                    <div class="text-danger small mt-1">{{ form.revisions.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="id_image" class="form-label">Gig Image</label>
+                    {% if gig.image %}
+                    <div class="mb-2">
+                        <strong>Current Image:</strong>
+                        <img src="{{ gig.image.url }}" alt="Current gig image" class="current-image">
+                    </div>
+                    {% endif %}
+                    <input type="file" class="form-control" id="id_image" name="image" accept="image/*">
+                    <div class="form-text">Leave empty to keep the current image</div>
+                    {% if form.image.errors %}
+                    <div class="text-danger small mt-1">{{ form.image.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <button type="submit" class="btn btn-edit-gig">
+                    <i class="fas fa-save me-2"></i>Update Gig
+                </button>
+                
+                <a href="{% url 'gigs:my_gigs' %}" class="btn btn-cancel">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

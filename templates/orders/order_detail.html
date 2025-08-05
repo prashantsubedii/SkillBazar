@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Order #{{ order.id }} - SkillBazar{% endblock %}
+
+{% block content %}
+<div class="container py-5 position-relative">
+    <a href="#" class="back-btn" onclick="window.history.back(); return false;" style="position:absolute;top:20px;left:-30px;z-index:10;width:40px;height:40px;background:#1877f2;border:none;border-radius:50%;color:white;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(24,119,242,0.3);transition:all 0.2s;text-decoration:none;"><i class="fas fa-arrow-left" style="font-size:1rem;"></i></a>
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Order Details -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-shopping-cart me-2"></i>Order #{{ order.id }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Gig Details</h6>
+                            <p><strong>Title:</strong> {{ order.gig.title }}</p>
+                            <p><strong>Freelancer:</strong> {{ order.freelancer.get_full_name }}</p>
+                            <p><strong>Amount:</strong> रु {{ order.amount }}</p>
+                            <p><strong>Delivery Time:</strong> {{ order.gig.delivery_time }} days</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Order Status</h6>
+                            <span class="badge bg-{% if order.status == 'completed' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'in_progress' %}info{% else %}secondary{% endif %} fs-6">
+                                {{ order.status|title }}
+                            </span>
+                            <p><strong>Order Date:</strong> {{ order.created_at|date:"M d, Y" }}</p>
+                            {% if order.delivery_date %}
+                            <p><strong>Completed:</strong> {{ order.delivery_date|date:"M d, Y" }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if order.requirements %}
+                    <div class="mt-3">
+                        <h6>Requirements</h6>
+                        <p class="text-muted">{{ order.requirements }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Gig Preview -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-briefcase me-2"></i>Gig Preview</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            {% if order.gig.image %}
+                            <img src="{{ order.gig.image.url }}" class="img-fluid rounded" alt="{{ order.gig.title }}">
+                            {% else %}
+                            <img src="https://via.placeholder.com/300x200/1877f2/ffffff?text={{ order.gig.title|urlencode }}" 
+                                 class="img-fluid rounded" alt="{{ order.gig.title }}">
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <h6>{{ order.gig.title }}</h6>
+                            <p class="text-muted">{{ order.gig.description|truncatewords:30 }}</p>
+                            <div class="d-flex align-items-center mb-2">
+                                {% if order.freelancer.profile_picture %}
+                                <img src="{{ order.freelancer.profile_picture.url }}" 
+                                     class="profile-pic me-2" alt="{{ order.freelancer.username }}">
+                                {% else %}
+                                <img src="https://via.placeholder.com/32x32" 
+                                     class="profile-pic me-2" alt="{{ order.freelancer.username }}">
+                                {% endif %}
+                                <small class="text-muted">{{ order.freelancer.username }}</small>
+                            </div>
+                            <a href="{{ order.gig.get_absolute_url }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye me-1"></i>View Gig
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review Section -->
+            {% if can_review %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-star me-2"></i>Leave a Review</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'orders:submit_review' order.id %}">
+                        {% csrf_token %}
+                        {{ review_form|crispy }}
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-2"></i>Submit Review
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Status Updates (Freelancer Only) -->
+            {% if user == order.freelancer %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Update Status</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'orders:update_order_status' order.pk %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Order Status</label>
+                            <select name="status" class="form-select">
+                                <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
+                                <option value="in_progress" {% if order.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                                <option value="completed" {% if order.status == 'completed' %}selected{% endif %}>Completed</option>
+                                <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-save me-2"></i>Update Status
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Actions -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-tools me-2"></i>Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'messaging:start_conversation' order.freelancer.id %}" class="btn btn-outline-primary">
+                            <i class="fas fa-envelope me-2"></i>Message Freelancer
+                        </a>
+                        <a href="{% url 'users:profile' username=order.freelancer.username %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-user me-2"></i>View Freelancer Profile
+                        </a>
+                        <a href="{% url 'orders:order_list' %}" class="btn btn-outline-info">
+                            <i class="fas fa-list me-2"></i>Back to Orders
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Info -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-credit-card me-2"></i>Payment Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Service Amount:</span>
+                        <span>रु {{ order.amount }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Platform Fee (5%):</span>
+                        <span>रु {{ platform_fee }}</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between fw-bold">
+                        <span>Total Paid:</span>
+                        <span>रु {{ total_amount }}</span>
+                    </div>
+                    <div class="mt-3">
+                        <span class="badge bg-success">
+                            <i class="fas fa-check me-1"></i>Payment Completed
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

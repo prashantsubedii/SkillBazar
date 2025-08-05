@@ -1,0 +1,293 @@
+{% extends 'base.html' %}
+
+{% block title %}My Orders - SkillBazar{% endblock %}
+
+{% block extra_css %}
+<style>
+    .orders-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem 0;
+    }
+    
+    .orders-header {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .orders-header h1 {
+        color: var(--primary);
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .orders-header p {
+        color: #6c757d;
+        margin-bottom: 0;
+    }
+    
+    .order-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+        transition: var(--transition);
+        border: none;
+    }
+    
+    .order-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .order-header {
+        background: var(--gradient);
+        color: white;
+        padding: 1.5rem;
+        position: relative;
+    }
+    
+    .order-header h5 {
+        margin: 0;
+        font-weight: 600;
+    }
+    
+    .order-status {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .status-pending {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+    }
+    
+    .status-in-progress {
+        background: rgba(13, 110, 253, 0.2);
+        color: #0d6efd;
+    }
+    
+    .status-completed {
+        background: rgba(25, 135, 84, 0.2);
+        color: #198754;
+    }
+    
+    .status-cancelled {
+        background: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+    }
+    
+    .order-body {
+        padding: 1.5rem;
+    }
+    
+    .order-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .detail-item i {
+        color: var(--primary);
+        width: 20px;
+    }
+    
+    .detail-item strong {
+        color: var(--dark);
+    }
+    
+    .detail-item span {
+        color: #6c757d;
+    }
+    
+    .gig-info {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .gig-info h6 {
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+    
+    .gig-info p {
+        margin-bottom: 0.25rem;
+        color: #6c757d;
+    }
+    
+    .order-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .btn-action {
+        border-radius: 8px;
+        font-weight: 600;
+        transition: var(--transition);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-action:hover {
+        transform: translateY(-2px);
+        text-decoration: none;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+    }
+    
+    .empty-state h4 {
+        color: var(--dark);
+        margin-bottom: 1rem;
+    }
+    
+    .empty-state p {
+        color: #6c757d;
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="orders-container">
+    <div class="container">
+        <div class="orders-header">
+            <h1><i class="fas fa-shopping-cart me-2"></i>My Orders</h1>
+            <p>Track your orders and manage your purchases</p>
+        </div>
+        
+        {% if orders %}
+        <div class="row">
+            {% for order in orders %}
+            <div class="col-12">
+                <div class="order-card">
+                    <div class="order-header">
+                        <h5><i class="fas fa-receipt me-2"></i>Order #{{ order.id }}</h5>
+                        <span class="order-status status-{{ order.status }}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </div>
+                    
+                    <div class="order-body">
+                        <div class="order-details">
+                            <div class="detail-item">
+                                <i class="fas fa-calendar"></i>
+                                <strong>Order Date:</strong>
+                                <span>{{ order.created_at|date:"M d, Y" }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-money-bill"></i>
+                                <strong>Amount:</strong>
+                                <span>NPR {{ order.amount }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-user"></i>
+                                <strong>Seller:</strong>
+                                <span>{{ order.gig.seller.get_full_name }}</span>
+                            </div>
+                            {% if order.completed_at %}
+                            <div class="detail-item">
+                                <i class="fas fa-check-circle"></i>
+                                <strong>Completed:</strong>
+                                <span>{{ order.completed_at|date:"M d, Y" }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="gig-info">
+                            <h6><i class="fas fa-briefcase me-2"></i>Gig Details</h6>
+                            <p><strong>Title:</strong> {{ order.gig.title }}</p>
+                            <p><strong>Category:</strong> {{ order.gig.category.name }}</p>
+                            <p><strong>Delivery Time:</strong> {{ order.gig.delivery_time }}</p>
+                        </div>
+                        
+                        <div class="order-actions">
+                            <a href="{% url 'orders:order_detail_with_payment' order.id %}" class="btn btn-primary btn-action">
+                                <i class="fas fa-eye"></i>View Order
+                            </a>
+                            {% if order.status == 'in_progress' %}
+                            <a href="{% url 'messaging:conversation_list' %}" class="btn btn-info btn-action">
+                                <i class="fas fa-envelope"></i>Message Seller
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if is_paginated %}
+        <nav aria-label="Orders pagination" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-shopping-cart"></i>
+            <h4>No Orders Yet</h4>
+            <p>You haven't placed any orders yet. Start exploring gigs and make your first purchase!</p>
+            <a href="{% url 'gigs:gig_list' %}" class="btn btn-primary">
+                <i class="fas fa-search me-2"></i>Browse Gigs
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

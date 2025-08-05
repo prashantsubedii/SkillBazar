@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Create Gig - SkillBazar{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .form-card {
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .form-card-header {
+        background: var(--gradient);
+        color: white;
+        padding: 1.5rem 2rem;
+    }
+    
+    .form-card-body {
+        padding: 2rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 10px;
+        padding: 1rem;
+        border: 1px solid #e0e0e0;
+        transition: var(--transition);
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+    }
+    
+    .btn-submit {
+        background: var(--gradient);
+        border: none;
+        border-radius: 10px;
+        padding: 1rem 2rem;
+        font-weight: 600;
+        transition: var(--transition);
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3);
+    }
+    
+    .btn-cancel {
+        border-radius: 10px;
+        padding: 1rem 2rem;
+        font-weight: 600;
+        transition: var(--transition);
+    }
+    
+    .btn-cancel:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .image-preview {
+        border: 2px dashed #e0e0e0;
+        border-radius: 10px;
+        padding: 1rem;
+        text-align: center;
+        cursor: pointer;
+        transition: var(--transition);
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+    
+    .image-preview:hover {
+        border-color: var(--primary);
+    }
+    
+    .image-preview img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="form-container">
+        <div class="card form-card">
+            <div class="card-header form-card-header">
+                <h3 class="mb-0"><i class="fas fa-plus me-2"></i>Create New Gig</h3>
+            </div>
+            <div class="card-body form-card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="submit" class="btn btn-primary btn-submit">
+                            <i class="fas fa-save me-2"></i>Create Gig
+                        </button>
+                        <a href="{% url 'gigs:my_gigs' %}" class="btn btn-outline-secondary btn-cancel">
+                            <i class="fas fa-arrow-left me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Image preview functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageInput = document.getElementById('id_image');
+        const imagePreview = document.createElement('div');
+        imagePreview.className = 'image-preview mb-3';
+        imagePreview.innerHTML = '<span class="text-muted">Click to upload gig image</span>';
+        
+        if (imageInput) {
+            imageInput.parentNode.insertBefore(imagePreview, imageInput.nextSibling);
+            
+            imagePreview.addEventListener('click', function() {
+                imageInput.click();
+            });
+            
+            imageInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imagePreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                    }
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        }
+        
+        // Add animation to form elements
+        const formElements = document.querySelectorAll('.form-group, .btn-submit, .btn-cancel');
+        formElements.forEach((el, index) => {
+            el.style.opacity = 0;
+            el.style.transform = 'translateY(20px)';
+            el.style.animation = `fadeInUp 0.5s ease-out ${index * 0.1}s forwards`;
+        });
+    });
+</script>
+{% endblock %}

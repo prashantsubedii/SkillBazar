@@ -1,0 +1,276 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Order {{ gig.title }} - SkillBazar{% endblock %}
+
+{% block extra_css %}
+<style>
+    .payment-method-card {
+        transition: all 0.3s ease;
+        border-width: 2px;
+    }
+    
+    .payment-method-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .payment-method-card.border-primary {
+        border-color: #0d6efd !important;
+        background-color: rgba(13, 110, 253, 0.05);
+    }
+    
+    .payment-method-card.border-success {
+        border-color: #198754 !important;
+        background-color: rgba(25, 135, 84, 0.05);
+    }
+    
+    .payment-method-card.border-secondary {
+        border-color: #6c757d !important;
+    }
+    
+    .payment-method-card .badge {
+        font-size: 0.75rem;
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .payment-logo {
+        max-width: 100%;
+        height: auto;
+        object-fit: contain;
+    }
+    
+    .khalti-logo {
+        width: 120px;
+        height: 60px;
+        object-fit: contain;
+        filter: brightness(1);
+        transition: filter 0.3s ease;
+    }
+    
+    .esewa-logo {
+        width: 100px;
+        height: 60px;
+        object-fit: contain;
+        filter: brightness(1);
+        transition: filter 0.3s ease;
+    }
+    
+    .payment-method-card:hover .khalti-logo,
+    .payment-method-card:hover .esewa-logo {
+        filter: brightness(1.1);
+    }
+    
+    .payment-method-card.border-primary .khalti-logo,
+    .payment-method-card.border-primary .esewa-logo {
+        filter: brightness(1.2);
+    }
+    
+    @media (max-width: 768px) {
+        .khalti-logo {
+            width: 100px;
+            height: 50px;
+        }
+        
+        .esewa-logo {
+            width: 80px;
+            height: 50px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="fas fa-shopping-cart me-2"></i>Place Order</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Gig Summary -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            {% if gig.image %}
+                            <img src="{{ gig.image.url }}" class="img-fluid rounded" alt="{{ gig.title }}">
+                            {% else %}
+                            <img src="https://via.placeholder.com/300x200/1877f2/ffffff?text={{ gig.title|urlencode }}" 
+                                 class="img-fluid rounded" alt="{{ gig.title }}">
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <h4>{{ gig.title }}</h4>
+                            <p class="text-muted">by {{ gig.freelancer.get_full_name }}</p>
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="rating me-2">
+                                    {% for i in "12345" %}
+                                    {% if forloop.counter <= gig.rating %}
+                                    <i class="fas fa-star"></i>
+                                    {% else %}
+                                    <i class="far fa-star"></i>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <small class="text-muted">({{ gig.total_reviews }} reviews)</small>
+                            </div>
+                            <h5 class="text-primary">रु {{ gig.price }}</h5>
+                            <small class="text-muted">Delivery in {{ gig.delivery_time }} days</small>
+                        </div>
+                    </div>
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        
+                                                 <!-- Payment Method Selection -->
+                         <div class="mb-4">
+                             <h5>Payment Method</h5>
+                             <div class="row">
+                                                                   <div class="col-md-6 mb-3">
+                                      <div class="card payment-method-card border-primary" data-payment="khalti" style="cursor: pointer; transition: all 0.3s ease;">
+                                          <div class="card-body text-center">
+                                              <img src="https://khaltibyime.khalti.com/wp-content/uploads/2025/07/cropped-Logo-for-Blog-1024x522.png" alt="Khalti" class="payment-logo khalti-logo mb-2">
+                                              <h6>Khalti</h6>
+                                              <small class="text-muted">Pay with Khalti</small>
+                                              <div class="mt-2">
+                                                  <span class="badge bg-success">Selected</span>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="col-md-6 mb-3">
+                                      <div class="card payment-method-card border-secondary" data-payment="esewa" style="cursor: pointer; transition: all 0.3s ease;">
+                                          <div class="card-body text-center">
+                                              <img src="https://www.gpeman.org.np/public/images/esewa.png" alt="eSewa" class="payment-logo esewa-logo mb-2">
+                                              <h6>eSewa</h6>
+                                              <small class="text-muted">Pay with eSewa</small>
+                                              <div class="mt-2">
+                                                  <span class="badge bg-secondary">Click to select</span>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                             </div>
+                             <input type="hidden" name="payment_method" id="selected_payment_method" value="khalti">
+                         </div>
+
+                        <!-- Order Summary -->
+                        <div class="card bg-light mb-4">
+                            <div class="card-body">
+                                <h6>Order Summary</h6>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Service Price:</span>
+                                    <span>रु {{ gig.price }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Platform Fee (5%):</span>
+                                    <span>रु {{ platform_fee|floatformat:0 }}</span>
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between fw-bold">
+                                    <span>Total:</span>
+                                    <span>रु {{ total_amount|floatformat:0 }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-credit-card me-2"></i>Proceed to Payment
+                            </button>
+                            <a href="{{ gig.get_absolute_url }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Gig
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Payment Processing</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h6>Redirecting to payment gateway...</h6>
+                <p class="text-muted">Please wait while we redirect you to complete your payment.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Payment method selection
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentCards = document.querySelectorAll('.payment-method-card');
+    const selectedPaymentInput = document.getElementById('selected_payment_method');
+    
+    paymentCards.forEach(card => {
+        card.addEventListener('click', function() {
+            // Remove active state from all cards
+            paymentCards.forEach(c => {
+                c.classList.remove('border-primary', 'border-success');
+                c.classList.add('border-secondary');
+                c.querySelector('.badge').className = 'badge bg-secondary';
+                c.querySelector('.badge').textContent = 'Click to select';
+            });
+            
+            // Add active state to clicked card
+            this.classList.remove('border-secondary');
+            this.classList.add('border-primary');
+            this.querySelector('.badge').className = 'badge bg-success';
+            this.querySelector('.badge').textContent = 'Selected';
+            
+            // Update hidden input
+            selectedPaymentInput.value = this.dataset.payment;
+            
+            // Add hover effect
+            this.style.transform = 'scale(1.02)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+            }, 200);
+        });
+        
+        // Add hover effects
+        card.addEventListener('mouseenter', function() {
+            if (!this.classList.contains('border-primary')) {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 4px 15px rgba(0,0,0,0.1)';
+            }
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            if (!this.classList.contains('border-primary')) {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            }
+        });
+    });
+});
+
+// Form submission
+document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Show payment modal
+    var paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+    paymentModal.show();
+    
+    // Simulate payment processing
+    setTimeout(function() {
+        // Submit the form
+        e.target.submit();
+    }, 2000);
+});
+</script>
+{% endblock %} 

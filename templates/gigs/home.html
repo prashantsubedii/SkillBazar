@@ -1,0 +1,444 @@
+{% extends 'base.html' %}
+{% load gig_filters %}
+
+{% block title %}SkillBazar - Nepal's Freelance Marketplace{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-slide {
+        background-size: cover;
+        background-position: center;
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        position: relative;
+    }
+    
+    .hero-slide::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.4);
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .category-card {
+        transition: var(--transition);
+        text-align: center;
+        padding: 20px;
+        border: none;
+        background: white;
+    }
+    
+    .category-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+    
+    .category-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        color: var(--primary);
+    }
+    
+    .gig-card {
+        transition: var(--transition);
+        height: 100%;
+    }
+    
+    .gig-card .card-img-top {
+        height: 180px;
+        object-fit: cover;
+    }
+    
+    .gig-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+    
+    .cta-section {
+        background: var(--gradient);
+        color: white;
+        padding: 4rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        top: -50px;
+        left: -50px;
+        width: 200px;
+        height: 200px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+    }
+    
+    .cta-section::after {
+        content: '';
+        position: absolute;
+        bottom: -80px;
+        right: -80px;
+        width: 300px;
+        height: 300px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+    }
+    
+    .search-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        margin-top: -50px;
+        position: relative;
+        z-index: 10;
+    }
+    
+    /* Gradient Banner Styles */
+    .gradient-banner-1 {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .gradient-banner-1::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    .gradient-banner-2 {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .gradient-banner-2::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 30% 70%, rgba(255, 183, 197, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 70% 30%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 50% 50%, rgba(255, 219, 255, 0.2) 0%, transparent 50%);
+        animation: float 8s ease-in-out infinite reverse;
+    }
+    
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+            transform: translateY(-20px) rotate(1deg);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Slider -->
+<section class="hero-section">
+    <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+        </div>
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <div class="hero-slide gradient-banner-1">
+                    <div class="container hero-content">
+                        <div class="row">
+                            <div class="col-lg-7">
+                                <h1 class="display-4 fw-bold text-white mb-4 animate__animated animate__fadeInDown">Find the Perfect Freelancer</h1>
+                                <p class="lead text-white mb-4 animate__animated animate__fadeInDown animate__delay-1s">Connect with talented professionals in Nepal. Get your projects done with quality and speed.</p>
+                                <div class="d-flex gap-3 animate__animated animate__fadeInUp animate__delay-2s">
+                                    <a href="{% url 'gigs:gig_list' %}" class="btn btn-light btn-lg px-4 py-3">
+                                        <i class="fas fa-search me-2"></i>Browse Services
+                                    </a>
+                                    {% if user.is_authenticated %}
+                                    <a href="{% url 'gigs:create_gig' %}" class="btn btn-outline-light btn-lg px-4 py-3">
+                                        <i class="fas fa-plus me-2"></i>Create Gig
+                                    </a>
+                                    {% else %}
+                                    <a href="{% url 'account_signup' %}" class="btn btn-outline-light btn-lg px-4 py-3">
+                                        <i class="fas fa-user-plus me-2"></i>Join Now
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <div class="hero-slide gradient-banner-2">
+                    <div class="container hero-content">
+                        <div class="row">
+                            <div class="col-lg-7">
+                                <h1 class="display-4 fw-bold text-white mb-4">Start Your Freelance Journey</h1>
+                                <p class="lead text-white mb-4">Showcase your skills and earn from anywhere in Nepal. Join thousands of successful freelancers.</p>
+                                <div class="d-flex gap-3">
+                                    <a href="{% url 'account_signup' %}" class="btn btn-light btn-lg px-4 py-3">
+                                        <i class="fas fa-rocket me-2"></i>Get Started
+                                    </a>
+                                    <a href="{% url 'gigs:gig_list' %}" class="btn btn-outline-light btn-lg px-4 py-3">
+                                        <i class="fas fa-eye me-2"></i>Explore Gigs
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
+    </div>
+</section>
+
+<!-- Search Section -->
+<section class="search-section">
+    <div class="container">
+        <form method="GET" action="{% url 'gigs:gig_list' %}" class="row g-3 align-items-center">
+            <div class="col-md-8">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="fas fa-search text-muted"></i>
+                    </span>
+                    <input type="text" name="q" class="form-control border-start-0 ps-0" 
+                           placeholder="Search for services..." value="{{ request.GET.q }}">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select name="category" class="form-select">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                    <option value="{{ category.slug }}" {% if request.GET.category == category.slug %}selected{% endif %}>
+                        {{ category.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100 py-3">
+                    <i class="fas fa-filter me-2"></i>Filter
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold mb-3">Popular Categories</h2>
+            <p class="text-muted">Browse services by category</p>
+        </div>
+        <div class="row g-4">
+            {% for category in categories %}
+            <div class="col-6 col-md-4 col-lg-2">
+                <a href="{{ category.get_absolute_url }}" class="text-decoration-none">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <div class="category-icon">
+                                <i class="{{ category.icon|default:'fas fa-tools' }}"></i>
+                            </div>
+                            <h6 class="card-title mb-0">{{ category.name }}</h6>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Featured Gigs Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold mb-3">Featured Services</h2>
+            <p class="text-muted">Top-rated services from our freelancers</p>
+        </div>
+        <div class="row g-4">
+            {% for gig in featured_gigs %}
+            <div class="col-md-6 col-lg-3">
+                <div class="card gig-card h-100">
+                    {% if gig.image %}
+                    <img src="{{ gig.image.url }}" class="card-img-top" alt="{{ gig.title }}">
+                    {% else %}
+                    <img src="https://images.pexels.com/photos/1181467/pexels-photo-1181467.jpeg?auto=compress&cs=tinysrgb&w=600" 
+                         class="card-img-top" alt="{{ gig.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            {% if gig.freelancer.profile_picture %}
+                            <img src="{{ gig.freelancer.profile_picture.url }}" 
+                                 class="profile-pic me-2" alt="{{ gig.freelancer.username }}">
+                            {% else %}
+                            <img src="https://ui-avatars.com/api/?name={{ gig.freelancer.get_full_name }}&background=random" 
+                                 class="profile-pic me-2" alt="{{ gig.freelancer.username }}">
+                            {% endif %}
+                            <div>
+                                <h6 class="mb-0 fw-bold">{{ gig.freelancer.get_full_name }}</h6>
+                                <small class="text-muted">{{ gig.category.name }}</small>
+                            </div>
+                        </div>
+                        <h6 class="card-title">{{ gig.title }}</h6>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-primary fw-bold fs-5">{{ gig.price|format_price }}</span>
+                            <div class="rating">
+                                {% for i in "12345" %}
+                                {% if forloop.counter <= gig.rating %}
+                                <i class="fas fa-star text-warning"></i>
+                                {% else %}
+                                <i class="far fa-star text-muted"></i>
+                                {% endif %}
+                                {% endfor %}
+                                <small class="text-muted ms-1">({{ gig.total_reviews }})</small>
+                            </div>
+                        </div>
+                        <a href="{{ gig.get_absolute_url }}" class="btn btn-primary w-100">
+                            <i class="fas fa-eye me-2"></i>View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'gigs:gig_list' %}" class="btn btn-outline-primary px-4">
+                View All Services <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Recent Gigs Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold mb-3">Recently Added Services</h2>
+            <p class="text-muted">Fresh services from our community</p>
+        </div>
+        <div class="row g-4">
+            {% for gig in recent_gigs %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card gig-card h-100">
+                    {% if gig.image %}
+                    <img src="{{ gig.image.url }}" class="card-img-top" alt="{{ gig.title }}">
+                    {% else %}
+                    <img src="https://images.pexels.com/photos/3183153/pexels-photo-3183153.jpeg?auto=compress&cs=tinysrgb&w=600" 
+                         class="card-img-top" alt="{{ gig.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            {% if gig.freelancer.profile_picture %}
+                            <img src="{{ gig.freelancer.profile_picture.url }}" 
+                                 class="profile-pic me-2" alt="{{ gig.freelancer.username }}">
+                            {% else %}
+                            <img src="https://ui-avatars.com/api/?name={{ gig.freelancer.get_full_name }}&background=random" 
+                                 class="profile-pic me-2" alt="{{ gig.freelancer.username }}">
+                            {% endif %}
+                            <div>
+                                <h6 class="mb-0 fw-bold">{{ gig.freelancer.get_full_name }}</h6>
+                                <small class="text-muted">{{ gig.category.name }}</small>
+                            </div>
+                        </div>
+                        <h6 class="card-title">{{ gig.title }}</h6>
+                        <p class="card-text small text-muted">{{ gig.description|truncatewords:15 }}</p>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-primary fw-bold fs-5">{{ gig.price|format_price }}</span>
+                            <div class="rating">
+                                {% for i in "12345" %}
+                                {% if forloop.counter <= gig.rating %}
+                                <i class="fas fa-star text-warning"></i>
+                                {% else %}
+                                <i class="far fa-star text-muted"></i>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <a href="{{ gig.get_absolute_url }}" class="btn btn-primary w-100">
+                            <i class="fas fa-eye me-2"></i>View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="cta-section">
+    <div class="container text-center">
+        <h2 class="text-white fw-bold mb-4">Ready to Get Started?</h2>
+        <p class="lead text-white mb-5">Join thousands of freelancers and clients on SkillBazar</p>
+        <div class="d-flex justify-content-center gap-3">
+            {% if not user.is_authenticated %}
+            <a href="{% url 'account_signup' %}" class="btn btn-light btn-lg px-4">
+                <i class="fas fa-user-plus me-2"></i>Sign Up Now
+            </a>
+            {% else %}
+            <a href="{% url 'gigs:create_gig' %}" class="btn btn-light btn-lg px-4">
+                <i class="fas fa-plus me-2"></i>Create Your First Gig
+            </a>
+            {% endif %}
+            <a href="{% url 'gigs:gig_list' %}" class="btn btn-outline-light btn-lg px-4">
+                <i class="fas fa-search me-2"></i>Browse Services
+            </a>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Initialize carousel with autoplay
+    document.addEventListener('DOMContentLoaded', function() {
+        const myCarousel = document.getElementById('heroCarousel');
+        const carousel = new bootstrap.Carousel(myCarousel, {
+            interval: 3000,
+            ride: 'carousel'
+        });
+        
+        // Animate elements on scroll
+        gsap.utils.toArray(".animate-on-scroll").forEach(element => {
+            gsap.from(element, {
+                scrollTrigger: {
+                    trigger: element,
+                    start: "top 80%",
+                    toggleActions: "play none none none"
+                },
+                opacity: 0,
+                y: 50,
+                duration: 1
+            });
+        });
+    });
+</script>
+{% endblock %}

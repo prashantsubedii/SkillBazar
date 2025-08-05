@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Messages - SkillBazar{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card { position: relative; z-index: 1; }
+    .messages-container { min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem 0; }
+    .conversations-container { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1); overflow: hidden; max-width: 800px; margin: 0 auto; }
+    .conversations-header { background: var(--gradient); color: white; padding: 2rem; text-align: center; }
+    .conversations-header h2 { margin: 0; font-weight: 700; }
+    .conversation-item { display: flex; align-items: center; padding: 1.5rem; border-bottom: 1px solid #e9ecef; transition: all 0.3s ease; text-decoration: none; color: inherit; }
+    .conversation-item:hover { background: #f8f9fa; text-decoration: none; color: inherit; }
+    .conversation-item:last-child { border-bottom: none; }
+    .conversation-avatar { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; margin-right: 1rem; border: 3px solid white; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
+    .conversation-content { flex: 1; }
+    .conversation-name { font-weight: 600; font-size: 1.1rem; margin-bottom: 0.25rem; color: #333; }
+    .conversation-preview { color: #6c757d; font-size: 0.9rem; margin-bottom: 0.25rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .conversation-time { color: #adb5bd; font-size: 0.8rem; }
+    .conversation-meta { text-align: right; margin-left: 1rem; }
+    .unread-badge { background: var(--primary); color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 600; margin-left: auto; }
+    .no-conversations { text-align: center; padding: 3rem; color: #6c757d; }
+    .no-conversations-icon { font-size: 4rem; color: #adb5bd; margin-bottom: 1rem; }
+    .start-conversation-btn { background: var(--gradient); border: none; border-radius: 10px; padding: 12px 30px; font-weight: 600; font-size: 1.1rem; transition: all 0.3s ease; color: white; text-decoration: none; display: inline-block; margin-top: 1rem; }
+    .start-conversation-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3); color: white; text-decoration: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="messages-container">
+    <div class="container">
+        <div class="conversations-container">
+            <div class="conversations-header">
+                <h2><i class="fas fa-envelope me-2"></i>My Messages</h2>
+                <p class="mb-0">Stay connected with your clients and freelancers</p>
+            </div>
+            {% if conversation_data %}
+                {% for data in conversation_data %}
+                    <div class="conversation-item" style="position:relative;">
+                        <a href="{% url 'messaging:conversation_detail' data.conversation.id %}" style="flex:1;display:flex;align-items:center;text-decoration:none;color:inherit;">
+                            <div class="conversation-avatar">
+                                {% if data.other_user.profile_picture %}
+                                    <img src="{{ data.other_user.profile_picture.url }}" alt="{{ data.other_user.username }}">
+                                {% else %}
+                                    <img src="https://ui-avatars.com/api/?name={{ data.other_user.get_full_name }}&background=random" alt="{{ data.other_user.username }}">
+                                {% endif %}
+                            </div>
+                            <div class="conversation-content">
+                                <div class="conversation-name">{{ data.other_user.get_full_name }}</div>
+                                {% if data.last_message %}
+                                    <div class="conversation-preview">
+                                        {% if data.last_message.sender == user %}
+                                            <strong>You:</strong> {{ data.last_message.content|truncatechars:50 }}
+                                        {% else %}
+                                            {{ data.last_message.content|truncatechars:50 }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="conversation-time">{{ data.last_message.created_at|timesince }} ago</div>
+                                {% else %}
+                                    <div class="conversation-preview">No messages yet</div>
+                                    <div class="conversation-time">{{ data.conversation.created_at|timesince }} ago</div>
+                                {% endif %}
+                            </div>
+                            <div class="conversation-meta">
+                                {% if data.unread_count > 0 %}
+                                    <div class="unread-badge">{{ data.unread_count }}</div>
+                                {% endif %}
+                            </div>
+                        </a>
+                        <form method="post" action="{% url 'messaging:delete_conversation' data.conversation.id %}" style="margin:0;position:absolute;right:10px;top:50%;transform:translateY(-50%);">
+                            {% csrf_token %}
+                            <button type="submit" title="Delete chat" style="background:none;border:none;color:#dc3545;font-size:1.2rem;cursor:pointer;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-conversations">
+                    <div class="no-conversations-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h4>No conversations yet</h4>
+                    <p>Start messaging with freelancers or clients to begin conversations.</p>
+                    <a href="{% url 'gigs:gig_list' %}" class="start-conversation-btn">
+                        <i class="fas fa-search me-2"></i>Browse Gigs
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

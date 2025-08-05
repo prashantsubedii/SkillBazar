@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ category.name }} - SkillBazar{% endblock %}
+
+{% block extra_css %}
+<style>
+    .breadcrumb {
+        background: none;
+        padding: 0;
+        font-size: 0.9rem;
+    }
+    
+    .breadcrumb-item a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+    
+    .breadcrumb-item.active {
+        color: #6c757d;
+    }
+    
+    .category-header {
+        margin-bottom: 2rem;
+    }
+    
+    .category-icon {
+        font-size: 2.5rem;
+        color: var(--primary);
+        margin-right: 1rem;
+    }
+    
+    .gig-card {
+        transition: var(--transition);
+        height: 100%;
+    }
+    
+    .gig-card .card-img-top {
+        height: 200px;
+        object-fit: cover;
+    }
+    
+    .gig-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+    
+    .seller-info {
+        display: flex;
+        align-items: center;
+    }
+    
+    .seller-name {
+        font-weight: 600;
+    }
+    
+    .no-results {
+        padding: 4rem 0;
+        text-align: center;
+    }
+    
+    .no-results-icon {
+        font-size: 3rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+    }
+    
+    .pagination .page-item .page-link {
+        border-radius: 8px;
+        margin: 0 3px;
+        border: none;
+        color: var(--primary);
+    }
+    
+    .pagination .page-item.active .page-link {
+        background: var(--gradient);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'gigs:home' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'gigs:gig_list' %}">Gigs</a></li>
+                    <li class="breadcrumb-item active">{{ category.name }}</li>
+                </ol>
+            </nav>
+            
+            <div class="d-flex align-items-center category-header">
+                <i class="{{ category.icon|default:'fas fa-tools' }} category-icon"></i>
+                <div>
+                    <h1 class="mb-1">{{ category.name }}</h1>
+                    <p class="text-muted mb-0">{{ category.description|default:"Browse services in this category" }}</p>
+                </div>
+                <span class="badge bg-primary fs-6 ms-auto">{{ page_obj.paginator.count }} services</span>
+            </div>
+        </div>
+    </div>
+
+    {% if page_obj %}
+    <div class="row g-4">
+        {% for gig in page_obj %}
+        <div class="col-md-6 col-lg-4 col-xl-3">
+            <div class="card gig-card h-100">
+                {% if gig.image %}
+                <img src="{{ gig.image.url }}" class="card-img-top" alt="{{ gig.title }}">
+                {% else %}
+                <img src="https://images.pexels.com/photos/3183153/pexels-photo-3183153.jpeg?auto=compress&cs=tinysrgb&w=600" 
+                     class="card-img-top" alt="{{ gig.title }}">
+                {% endif %}
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        {% if gig.freelancer.profile_picture %}
+                        <img src="{{ gig.freelancer.profile_picture.url }}" 
+                             class="profile-pic me-3" alt="{{ gig.freelancer.username }}">
+                        {% else %}
+                        <img src="https://ui-avatars.com/api/?name={{ gig.freelancer.get_full_name }}&background=random" 
+                             class="profile-pic me-3" alt="{{ gig.freelancer.username }}">
+                        {% endif %}
+                        <div>
+                            <h6 class="mb-0 fw-bold">{{ gig.freelancer.get_full_name }}</h6>
+                            <small class="text-muted">{{ gig.category.name }}</small>
+                        </div>
+                    </div>
+                    <h5 class="card-title">{{ gig.title }}</h5>
+                    <p class="card-text text-muted small">{{ gig.description|truncatewords:15 }}</p>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-primary fw-bold fs-5">{{ gig.price }}</span>
+                        <div class="rating">
+                            {% for i in "12345" %}
+                            {% if forloop.counter <= gig.rating %}
+                            <i class="fas fa-star text-warning"></i>
+                            {% else %}
+                            <i class="far fa-star text-muted"></i>
+                            {% endif %}
+                            {% endfor %}
+                            <small class="text-muted ms-1">({{ gig.total_reviews }})</small>
+                        </div>
+                    </div>
+                    <a href="{{ gig.get_absolute_url }}" class="btn btn-primary w-100">
+                        <i class="fas fa-eye me-2"></i>View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Category gigs pagination" class="mt-5">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active">
+                <span class="page-link">{{ num }}</span>
+            </li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="no-results">
+        <div class="no-results-icon">
+            <i class="fas fa-search"></i>
+        </div>
+        <h4 class="mb-3">No services found in this category</h4>
+        <p class="text-muted mb-4">Try browsing other categories or check back later</p>
+        <a href="{% url 'gigs:gig_list' %}" class="btn btn-primary">
+            <i class="fas fa-list me-2"></i>Browse All Services
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Smooth scroll to top when paginating
+    document.addEventListener('DOMContentLoaded', function() {
+        const paginationLinks = document.querySelectorAll('.pagination a');
+        paginationLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+                setTimeout(() => {
+                    window.location.href = href;
+                }, 500);
+            });
+        });
+    });
+</script>
+{% endblock %}

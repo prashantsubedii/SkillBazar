@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment Successful - SkillBazar{% endblock %}
+
+{% block extra_css %}
+<style>
+    .success-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    
+    .success-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        max-width: 500px;
+        width: 100%;
+        animation: slideUp 0.6s ease-out;
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .success-header {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+    }
+    
+    .success-header h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+    
+    .success-body {
+        padding: 40px 30px;
+        text-align: center;
+    }
+    
+    .success-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        color: white;
+        font-size: 2rem;
+        animation: bounce 0.6s ease-out;
+    }
+    
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {
+            transform: translateY(0);
+        }
+        40% {
+            transform: translateY(-10px);
+        }
+        60% {
+            transform: translateY(-5px);
+        }
+    }
+    
+    .order-details {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        margin: 20px 0;
+        text-align: left;
+    }
+    
+    .order-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    
+    .order-item:last-child {
+        margin-bottom: 0;
+        border-top: 1px solid #dee2e6;
+        padding-top: 10px;
+        font-weight: 600;
+    }
+    
+    .btn-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 12px 30px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        color: white;
+        text-decoration: none;
+        display: inline-block;
+        margin: 10px;
+    }
+    
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .btn-outline {
+        border: 2px solid #28a745;
+        border-radius: 10px;
+        padding: 12px 30px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        color: #28a745;
+        text-decoration: none;
+        display: inline-block;
+        margin: 10px;
+        background: transparent;
+    }
+    
+    .btn-outline:hover {
+        background: #28a745;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="success-container">
+    <div class="success-card">
+        <div class="success-header">
+            <h1><i class="fas fa-check-circle me-2"></i>Payment Successful!</h1>
+            <p>Your order has been placed successfully</p>
+        </div>
+        
+        <div class="success-body">
+            <div class="success-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            
+            <h4 class="mb-3">Thank you for your order!</h4>
+            <p class="text-muted mb-4">
+                Your payment has been processed successfully. The freelancer has been notified and will start working on your project soon.
+            </p>
+            
+            <div class="order-details">
+                <h6 class="mb-3"><i class="fas fa-shopping-cart me-2"></i>Order Details</h6>
+                <div class="order-item">
+                    <span>Service:</span>
+                    <span>{{ order.gig.title }}</span>
+                </div>
+                <div class="order-item">
+                    <span>Freelancer:</span>
+                    <span>{{ order.freelancer.get_full_name }}</span>
+                </div>
+                <div class="order-item">
+                    <span>Order ID:</span>
+                    <span>#{{ order.id }}</span>
+                </div>
+                <div class="order-item">
+                    <span>Amount Paid:</span>
+                    <span>रु {{ order.amount }}</span>
+                </div>
+                <div class="order-item">
+                    <span>Delivery:</span>
+                    <span>{{ order.gig.delivery_time }} days</span>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <a href="{% url 'orders:order_detail' order.pk %}" class="btn btn-success">
+                    <i class="fas fa-eye me-2"></i>View Order Details
+                </a>
+                <a href="{% url 'gigs:home' %}" class="btn btn-outline">
+                    <i class="fas fa-home me-2"></i>Back to Home
+                </a>
+            </div>
+            
+            <div class="mt-4">
+                <small class="text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    You will receive email updates about your order status.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

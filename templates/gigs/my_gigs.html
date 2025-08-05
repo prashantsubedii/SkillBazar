@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}My Gigs - SkillBazar{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-briefcase me-2"></i>My Gigs</h2>
+                <a href="{% url 'gigs:create_gig' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Create New Gig
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% if gigs %}
+    <div class="row g-4">
+        {% for gig in gigs %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100">
+                {% if gig.image %}
+                <img src="{{ gig.image.url }}" class="card-img-top" alt="{{ gig.title }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                <img src="https://via.placeholder.com/300x200/1877f2/ffffff?text={{ gig.title|urlencode }}" 
+                     class="card-img-top" alt="{{ gig.title }}">
+                {% endif %}
+                <div class="card-body">
+                    <h6 class="card-title">{{ gig.title }}</h6>
+                    <p class="card-text small text-muted">{{ gig.description|truncatewords:10 }}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-primary fw-bold">रु {{ gig.price }}</span>
+                        <div class="rating">
+                            {% for i in "12345" %}
+                            {% if forloop.counter <= gig.rating %}
+                            <i class="fas fa-star"></i>
+                            {% else %}
+                            <i class="far fa-star"></i>
+                            {% endif %}
+                            {% endfor %}
+                            <small class="text-muted ms-1">({{ gig.total_reviews }})</small>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <small class="text-muted">
+                            <i class="fas fa-eye me-1"></i>{{ gig.views }} views
+                        </small>
+                        <span class="badge bg-{% if gig.is_active %}success{% else %}secondary{% endif %}">
+                            {% if gig.is_active %}Active{% else %}Inactive{% endif %}
+                        </span>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <a href="{{ gig.get_absolute_url }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-eye me-1"></i>View
+                        </a>
+                        <a href="{% url 'gigs:edit_gig' gig.slug %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </a>
+                        <a href="{% url 'gigs:delete_gig' gig.slug %}" class="btn btn-outline-danger btn-sm">
+                            <i class="fas fa-trash me-1"></i>Delete
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-briefcase fa-3x text-muted mb-3"></i>
+        <h4>No gigs created yet</h4>
+        <p class="text-muted">Start by creating your first gig to showcase your skills.</p>
+        <a href="{% url 'gigs:create_gig' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Create Your First Gig
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 
