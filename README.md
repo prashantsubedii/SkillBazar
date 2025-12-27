@@ -2,7 +2,7 @@
 
 SkillBazar is a comprehensive freelance marketplace platform designed specifically for Nepal, similar to Fiverr but tailored for the Nepali market. The platform supports both Khalti and eSewa payment methods and features a modern, responsive design with a blue gradient theme.
 
-## 🚀 Features
+## Features
 
 ### User System
 - **User Registration & Authentication**: Signup with email, username, and password
@@ -30,7 +30,7 @@ SkillBazar is a comprehensive freelance marketplace platform designed specifical
 - **Pagination**: Efficient browsing with pagination
 - **Admin Panel**: Comprehensive admin interface for content moderation
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 - **Backend**: Django 4.2.7
 - **Frontend**: Bootstrap 5, FontAwesome Icons
@@ -40,7 +40,7 @@ SkillBazar is a comprehensive freelance marketplace platform designed specifical
 - **Image Handling**: Pillow
 - **Payment**: Khalti and eSewa integration (demo)
 
-## 📦 Installation
+## Installation
 
 ### Prerequisites
 - Python 3.8 or higher
@@ -99,7 +99,7 @@ SkillBazar is a comprehensive freelance marketplace platform designed specifical
    - Main site: http://localhost:8000
    - Admin panel: http://localhost:8000/admin
 
-## 🎨 Demo Content
+## Demo Content
 
 The platform comes pre-populated with demo content including:
 
@@ -138,7 +138,7 @@ The platform comes pre-populated with demo content including:
 - Business Card Design
 - Technical Writing
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 Skillbazar/
@@ -168,7 +168,7 @@ Skillbazar/
 └── manage.py           # Django management script
 ```
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 Create a `.env` file in the project root:
@@ -187,7 +187,7 @@ The platform includes demo payment buttons for Khalti and eSewa. For production:
 2. **eSewa Integration**: Add your eSewa merchant credentials
 3. **Webhook Handling**: Implement webhook endpoints for payment verification
 
-## 🚀 Deployment
+## Deployment
 
 ### Production Settings
 1. Set `DEBUG = False`
@@ -205,7 +205,7 @@ docker build -t skillbazar .
 docker run -p 8000:8000 skillbazar
 ```
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -217,14 +217,14 @@ docker run -p 8000:8000 skillbazar
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🆘 Support
+## Support
 
 For support and questions:
 - Create an issue in the repository
 - Contact the development team
 - Check the documentation
 
-## 🎯 Roadmap
+## Roadmap
 
 - [ ] Real payment integration
 - [ ] Advanced search filters
